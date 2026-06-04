@@ -6,7 +6,8 @@ app = Flask(__name__)
 
 # Tus credenciales directas
 BOT_TOKEN = "7618389972:AAFe4Nsrn79M4aNatYLmn0CGfIfcDRK7eIo"
-FLOWISE_URL = "https://cloud.flowiseai.com/api/v1/prediction/01f2874a-db1b-4ac5-805b-723973ac0d83"
+
+FLOWISE_URL = "https://cloud.flowiseai.com/api/v1/prediction-internal/01f2874a-db1b-4ac5-805b-723973ac0d83"
 @app.route('/webhook', methods=['POST'])
 def telegram_webhook():
     data = request.get_json()
