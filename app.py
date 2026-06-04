@@ -22,7 +22,6 @@ def telegram_webhook():
     if not user_message:
         return "OK", 200
 
-    # Cabecera con pase VIP a Flowise Cloud
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {FLOWISE_API_KEY}"
@@ -35,14 +34,17 @@ def telegram_webhook():
             headers=headers
         )
         
-        try:
-            # Leemos la respuesta que armó Roxy
-            roxy_reply = flowise_response.json().get("text", "¡Uh gordi, me colapsé! Hablame de nuevo.")
-        except:
-            roxy_reply = "Perdón gordi, me devolvieron datos raros."
+        # Diagnóstico: Si la respuesta no es un 200, te avisa qué pasó
+        if flowise_response.status_code == 200:
+            try:
+                roxy_reply = flowise_response.json().get("text", "No encontré la variable text en el JSON.")
+            except:
+                roxy_reply = f"Dio 200 pero no es JSON. Respuesta: {flowise_response.text[:100]}"
+        else:
+            roxy_reply = f"Flowise rebotó con Código {flowise_response.status_code}. Detalle: {flowise_response.text[:100]}"
             
     except Exception as e:
-        roxy_reply = "Perdón che, ando con algunos problemas de comunicación con mi cerebro."
+        roxy_reply = f"Error crítico en el script: {str(e)}"
 
     # Enviamos la respuesta limpia a tu Telegram
     telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
