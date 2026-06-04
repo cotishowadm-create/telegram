@@ -4,9 +4,10 @@ import requests
 
 app = Flask(__name__)
 
-# Configuración limpia de API
+# CONFIGURACIÓN COMPLETA
 BOT_TOKEN = "7618389972:AAFe4Nsrn79M4aNatYLmn0CGfIfcDRK7eIo"
 FLOWISE_URL = "https://cloud.flowiseai.com/api/v1/prediction/01f2874a-db1b-4ac5-805b-723973ac0d83"
+FLOWISE_API_KEY = "OgvBljAW_9n-fo0r446fxqr1l9S3vM8ftTJeHTsSUIM" 
 
 @app.route('/webhook', methods=['POST'])
 def telegram_webhook():
@@ -21,24 +22,29 @@ def telegram_webhook():
     if not user_message:
         return "OK", 200
 
-    # Enviamos la pregunta con el formato oficial de la API
+    # Cabecera con pase VIP a Flowise Cloud
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {FLOWISE_API_KEY}"
+    }
+
     try:
         flowise_response = requests.post(
             FLOWISE_URL, 
             json={"question": user_message},
-            headers={"Content-Type": "application/json"}
+            headers=headers
         )
         
         try:
-            # La API devuelve un JSON y la respuesta de la IA viene en 'text'
+            # Leemos la respuesta que armó Roxy
             roxy_reply = flowise_response.json().get("text", "¡Uh gordi, me colapsé! Hablame de nuevo.")
         except:
-            roxy_reply = "Perdón gordi, me devolvieron datos raros de la base."
+            roxy_reply = "Perdón gordi, me devolvieron datos raros."
             
     except Exception as e:
         roxy_reply = "Perdón che, ando con algunos problemas de comunicación con mi cerebro."
 
-    # Enviamos la respuesta limpia a Telegram
+    # Enviamos la respuesta limpia a tu Telegram
     telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     payload = {
         "chat_id": chat_id, 
